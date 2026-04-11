@@ -1,28 +1,47 @@
+#include <fstream>
+#include <iostream>
+#include <sstream>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <iostream>
+
 #include "shader_utils.h"
 
-int main() {
-    if (!glfwInit()) return -1;
+int main(void)
+{
+    GLFWwindow* window;
+
+    /* Initialize the library */
+    if (!glfwInit())
+        return -1;
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow* window = glfwCreateWindow(800, 600, "OpenGL Rectangle Interpolation", NULL, NULL);
-    if (!window) {
+    /* Create a windowed mode window and its OpenGL context */
+    window = glfwCreateWindow(800, 600, "OpenGL Rectangle Interpolation", NULL, NULL);
+    if (!window)
+    {
+        std::cout << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
         return -1;
     }
 
+    /* Make the window's context current */
     glfwMakeContextCurrent(window);
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) return -1;
+    if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
+        std::cout << "Failed to initialize GLAD" << std::endl;
+        return -1;
+    }
 
-    // Завантаження шейдерів
-    std::string vShader = "res/shaders/triangle.vert";
-    std::string fShader = "res/shaders/triangle.frag";
-    GLuint shaderProgram = createProgram(vShader, fShader);
+    // Встановлюємо темно-сірий колір фону (як у твоєму коді)
+    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+
+    std::string vertexShaderName = "res/shaders/triangle.vert";
+    std::string fragmentShaderName = "res/shaders/triangle.frag";
+    GLuint shaderProgram = createProgram(
+        vertexShaderName,
+        fragmentShaderName);
 
     // Координати вершин прямокутника (X, Y, Z)
     float vertices[] = {
@@ -32,7 +51,7 @@ int main() {
          0.5f, -0.5f, 0.0f   // Вершина 4 (Нижній правий кут)
     };
 
-    // Кольори для кожної вершини (R, G, B)
+    // Кольори для кожної вершини (R, G, B) згідно з завданням
     float colors[] = {
         1.0f, 0.0f, 0.0f,  // Червоний (Вершина 1)
         1.0f, 1.0f, 0.0f,  // Жовтий (Вершина 2)
@@ -40,41 +59,72 @@ int main() {
         0.0f, 0.0f, 1.0f   // Синій (Вершина 4)
     };
 
-    GLuint VAO, VBO_pos, VBO_color;
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO_pos);
+    GLuint VBO;
+    GLuint VBO_color;
+    GLuint VAO;
+
+    glGenBuffers(1, &VBO);
     glGenBuffers(1, &VBO_color);
+    glGenVertexArrays(1, &VAO);
 
     glBindVertexArray(VAO);
 
     // Буфер позицій
-    glBindBuffer(GL_ARRAY_BUFFER, VBO_pos);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
+
+    GLuint posAttribLocation = glGetAttribLocation(shaderProgram, "aPos");
+    glVertexAttribPointer(
+        posAttribLocation,        // динамічно знайдена позиція aPos
+        3,                        // 3 компоненти: x, y, z
+        GL_FLOAT,
+        GL_FALSE,
+        3 * sizeof(float),        // крок (stride)
+        (void*)0
+    );
+    glEnableVertexAttribArray(posAttribLocation);
 
     // Буфер кольорів
     glBindBuffer(GL_ARRAY_BUFFER, VBO_color);
     glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(1);
 
-    while (!glfwWindowShouldClose(window)) {
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+    GLuint colorAttribLocation = glGetAttribLocation(shaderProgram, "aColor");
+    glVertexAttribPointer(
+        colorAttribLocation,      // динамічно знайдена позиція aColor
+        3,                        // 3 компоненти: r, g, b
+        GL_FLOAT,
+        GL_FALSE,
+        3 * sizeof(float),        // крок (stride)
+        (void*)0
+    );
+    glEnableVertexAttribArray(colorAttribLocation);
+
+    glBindVertexArray(0);
+
+    /* Loop until the user closes the window */
+    do
+    {
+        /* Render here */
         glClear(GL_COLOR_BUFFER_BIT);
 
         glUseProgram(shaderProgram);
         glBindVertexArray(VAO);
-        
+
+        // Малюємо прямокутник як стрічку трикутників (4 вершини)
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
+        /* Swap front and back buffers */
         glfwSwapBuffers(window);
-        glfwPollEvents();
-    }
 
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO_pos);
+        /* Poll for and process events */
+        glfwPollEvents();
+    } while (!glfwWindowShouldClose(window) && !glfwGetKey(window, GLFW_KEY_ESCAPE));
+
+    glDeleteBuffers(1, &VBO);
     glDeleteBuffers(1, &VBO_color);
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteProgram(shaderProgram);
+
     glfwTerminate();
     return 0;
 }

@@ -16,18 +16,17 @@ set(ALL_LIBS
 )
 
 # додаємо main.cpp та shader_utils, щоб функції LoadShaderFromFile були доступні.
-add_executable(OpenGL_learning 
-    src/main.cpp 
-    src/shader_utils.cpp 
-    src/shader_utils.h
+add_executable(OpenGL_learning
+        src/main.cpp
+        src/shader_utils.cpp
+        src/shader_utils.h
 )
-
 target_link_libraries(OpenGL_learning ${ALL_LIBS})
 
 
 add_custom_command(
         TARGET OpenGL_learning POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_SOURCE_DIR}/src/res
+        ${CMAKE_SOURCE_DIR}/res
         $<TARGET_FILE_DIR:OpenGL_learning>/res
 )
