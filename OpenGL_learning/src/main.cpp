@@ -34,7 +34,6 @@ int main(void)
         return -1;
     }
 
-    // Встановлюємо темно-сірий колір фону (як у твоєму коді)
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
     std::string vertexShaderName = "res/shaders/triangle.vert";
@@ -51,7 +50,6 @@ int main(void)
          0.5f, -0.5f, 0.0f   // Вершина 4 (Нижній правий кут)
     };
 
-    // Кольори для кожної вершини (R, G, B) згідно з завданням
     float colors[] = {
         1.0f, 0.0f, 0.0f,  // Червоний (Вершина 1)
         1.0f, 1.0f, 0.0f,  // Жовтий (Вершина 2)
@@ -75,7 +73,7 @@ int main(void)
 
     GLuint posAttribLocation = glGetAttribLocation(shaderProgram, "aPos");
     glVertexAttribPointer(
-        posAttribLocation,        // динамічно знайдена позиція aPos
+        posAttribLocation,        //  знайдена позиція aPos
         3,                        // 3 компоненти: x, y, z
         GL_FLOAT,
         GL_FALSE,
@@ -90,7 +88,7 @@ int main(void)
 
     GLuint colorAttribLocation = glGetAttribLocation(shaderProgram, "aColor");
     glVertexAttribPointer(
-        colorAttribLocation,      // динамічно знайдена позиція aColor
+        colorAttribLocation,      // знайдена позиція aColor
         3,                        // 3 компоненти: r, g, b
         GL_FLOAT,
         GL_FALSE,
@@ -110,7 +108,6 @@ int main(void)
         glUseProgram(shaderProgram);
         glBindVertexArray(VAO);
 
-        // Малюємо прямокутник як стрічку трикутників (4 вершини)
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
         /* Swap front and back buffers */
