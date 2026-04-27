@@ -1,7 +1,3 @@
-//
-// Created by Andrii Krenevych on 09.04.2026.
-//
-
 #include "shader_utils.h"
 
 #include <fstream>
