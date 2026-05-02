@@ -20,6 +20,7 @@ add_executable(OpenGL_learning
         src/main.cpp
         src/shader_utils.cpp
         src/shader_utils.h
+        "../Textured Rectangles/scr/main.cpp"
 )
 target_link_libraries(OpenGL_learning ${ALL_LIBS})
 
